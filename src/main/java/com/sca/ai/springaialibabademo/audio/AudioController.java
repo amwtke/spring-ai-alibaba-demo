@@ -51,7 +51,8 @@ public class AudioController {
         log.info("语音:{}", msg);
         return dashScopeSpeechSynthesisModel.call(new SpeechSynthesisPrompt(msg
                         , DashScopeSpeechSynthesisOptions.builder()
-                        .withVoice("longcheng")
+                        .withModel("sambert-zhinan-v1")
+                        .withVoice("知琪")
                         .withResponseFormat(DashScopeSpeechSynthesisApi.ResponseFormat.MP3)
                         .build()
                 ))
@@ -62,7 +63,7 @@ public class AudioController {
     public String audioToText() {
         return dashScopeAudioTranscriptionModel.call(new AudioTranscriptionPrompt(audioFile
                                 , DashScopeAudioTranscriptionOptions.builder()
-//                                .withModel("paraformer-realtime-v2")
+                                .withModel("paraformer-realtime-v2")
                                 .withSampleRate(48000)
                                 .withFormat(DashScopeAudioTranscriptionOptions.AudioFormat.MP3)
 //                        .withVocabularyId("vocab-prefix-cf7935da7aec44c5bff89cf725392393")
@@ -98,7 +99,7 @@ public class AudioController {
                         .format("mp3")
                         .sampleRate(48000)
                         .apiKey(apiKey)
-                        .vocabularyId("vocab-prefix-cf7935da7aec44c5bff89cf725392393")
+                        .vocabularyId("vocab-prefix-aa17d38fdc174b09a4d3d4dc180053c0")
                         // “language_hints”只支持paraformer-v2和paraformer-realtime-v2模型
                         .parameter("language_hints", new String[]{"zh"})
                         .build();
