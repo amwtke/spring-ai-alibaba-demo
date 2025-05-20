@@ -17,6 +17,7 @@ import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.image.ImagePrompt;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -55,11 +56,12 @@ public class ImageController {
     public String multimodality(@RequestParam(value = "msg", defaultValue = "在图片中你能看到什么？") String msg) {
         return dashScopeChatClientBuilder.build()
                 .prompt(new Prompt(msg, DashScopeChatOptions.builder()
-                        .withModel("qwen-vl-max-latest")
-//                        .withModel("qwen-vl-plus")
+//                        .withModel("qwen-vl-max-latest")
+                        .withModel("qwen-vl-plus")
                         .withMultiModel(true)
                         .build()))
-                .user(u -> u.text(msg).media(MimeTypeUtils.IMAGE_PNG, imageFile)
+                .user(u -> u.media(MimeTypeUtils.IMAGE_PNG, imageFile)
+                        .media(MimeTypeUtils.ALL, UrlResource.from("https://dashscope.oss-cn-beijing.aliyuncs.com/images/tiger.png"))
                 )
                 .call().content();
     }
