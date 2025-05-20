@@ -25,8 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static com.alibaba.cloud.ai.autoconfigure.dashscope.DashScopeImageProperties.DEFAULT_IMAGES_MODEL_NAME;
-
 @Slf4j
 @RestController
 public class ImageController {
@@ -57,10 +55,11 @@ public class ImageController {
     public String multimodality(@RequestParam(value = "msg", defaultValue = "在图片中你能看到什么？") String msg) {
         return dashScopeChatClientBuilder.build()
                 .prompt(new Prompt(msg, DashScopeChatOptions.builder()
+                        .withModel("qwen-vl-max-latest")
 //                        .withModel("qwen-vl-plus")
+                        .withMultiModel(true)
                         .build()))
-                .user(u -> u.media(MimeTypeUtils.IMAGE_PNG, imageFile)
-//                                .media()
+                .user(u -> u.text(msg).media(MimeTypeUtils.IMAGE_PNG, imageFile)
                 )
                 .call().content();
     }
