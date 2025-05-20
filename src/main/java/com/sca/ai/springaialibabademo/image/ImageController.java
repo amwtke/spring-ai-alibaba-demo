@@ -30,7 +30,6 @@ import static com.alibaba.cloud.ai.autoconfigure.dashscope.DashScopeImagePropert
 @Slf4j
 @RestController
 public class ImageController {
-    static private final FileSystemResource audioFile = new FileSystemResource("src/main/resources/audio.mp3");
     static private final FileSystemResource imageFile = new FileSystemResource("src/main/resources/multimodal.test.png");
 
     @Value("${spring.ai.dashscope.api-key}")
@@ -47,7 +46,8 @@ public class ImageController {
     public String getImage(@RequestParam(value = "msg", defaultValue = "海边的龙虾") String msg) {
         log.info("image msg:{}", msg);
         return dashScopeImageModel.call(new ImagePrompt(msg, DashScopeImageOptions.builder()
-                        .withModel(DEFAULT_IMAGES_MODEL_NAME)
+//                        .withModel(DEFAULT_IMAGES_MODEL_NAME)
+                        .withModel("wanx2.1-t2i-plus")
                         .withN(1)
                         .build()))
                 .getResult().getOutput().getUrl();
