@@ -3,15 +3,12 @@ package com.sca.ai.springaialibabademo.image;
 import com.alibaba.cloud.ai.dashscope.image.DashScopeImageModel;
 import com.alibaba.cloud.ai.dashscope.image.DashScopeImageOptions;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.image.ImageOptions;
 import org.springframework.ai.image.ImagePrompt;
-import org.springframework.ai.image.ImageResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import static com.alibaba.cloud.ai.autoconfigure.dashscope.DashScopeImageProperties.DEFAULT_IMAGES_MODEL_NAME;
-import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
 
 @Slf4j
 @RestController
