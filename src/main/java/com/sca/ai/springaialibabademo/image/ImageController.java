@@ -76,6 +76,7 @@ public class ImageController {
                 .chatResponse().mapNotNull(r -> r.getResult()).mapNotNull(r -> r.getOutput()).mapNotNull(r -> r.getText());
     }
 
+    //根据文档 必须是stream调用。才行！
     @GetMapping("/ai/cc/multi_sdk")
     public String multimodality_sdk(@RequestParam(value = "msg", defaultValue = "在图片中你能看到什么？") String msg) throws NoApiKeyException, UploadFileException {
         StringBuilder sb = new StringBuilder();
