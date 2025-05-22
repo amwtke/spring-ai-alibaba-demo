@@ -7,6 +7,7 @@ import org.springframework.ai.chat.client.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.rag.generation.augmentation.ContextualQueryAugmenter;
+import org.springframework.ai.rag.preretrieval.query.expansion.MultiQueryExpander;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.elasticsearch.ElasticsearchVectorStore;
@@ -84,18 +85,19 @@ public class RagController {
 //                        b.in("room", "living_room", "study", "kitchen")  // 指定房间类型
 //                ));
 
-        var filterExpression = b.eq("year", "2023");
+//        var filterExpression = b.eq("year", "2023");
         return RetrievalAugmentationAdvisor.builder()
                 // 配置查询增强器 注入documents的地方
                 .queryAugmenter(ContextualQueryAugmenter.builder()
                         .allowEmptyContext(true)        // 允许空上下文查询
                         .build())
+                .queryExpander(MultiQueryExpander.builder().chatClientBuilder(dashScopeChatClientBuilder).build())
                 // 配置文档检索器
                 .documentRetriever(VectorStoreDocumentRetriever.builder()
                         .vectorStore(elasticsearchVectorStore)
 //                        .similarityThreshold(0.5)       // 相似度阈值
 //                        .topK(3)                        // 返回文档数量
-                        .filterExpression(filterExpression.build())     // 文档过滤表达式
+//                        .filterExpression(filterExpression.build())     // 文档过滤表达式
                         .build())
                 .build();
     }
