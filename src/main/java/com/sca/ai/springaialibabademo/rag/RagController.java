@@ -3,6 +3,7 @@ package com.sca.ai.springaialibabademo.rag;
 import com.sca.ai.springaialibabademo.rag.service.EsVectorStoreService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.document.Document;
@@ -12,9 +13,11 @@ import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.elasticsearch.ElasticsearchVectorStore;
 import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Map;
@@ -27,6 +30,9 @@ public class RagController {
     private final ElasticsearchVectorStore elasticsearchVectorStore;
 
     private final EsVectorStoreService esVectorStoreService;
+
+    @Autowired
+    private MessageChatMemoryAdvisor messageChatMemoryAdvisor;
     private static final String SYS_MSG = """
             你是一位专业的室内设计顾问，精通各种装修风格、材料选择和空间布局。请基于提供的参考资料，为用户提供专业、详细且实用的建议。在回答时，请注意：
                                      1. 准确理解用户的具体需求"
@@ -43,12 +49,13 @@ public class RagController {
         this.esVectorStoreService = esVectorStoreService;
     }
 
-    @GetMapping("/ai/rag")
-    public String ragTest(@RequestParam(value = "msg", defaultValue = DEFAULT_PROMPT) String msg) {
+    @GetMapping(value = "/ai/rag",produces = "text/html;charset=utf-8")
+    public Flux<String> ragTest(@RequestParam(value = "msg", defaultValue = DEFAULT_PROMPT) String msg) {
         return dashScopeChatClientBuilder.defaultSystem(SYS_MSG)
                 .build().prompt(msg)
+                .advisors(messageChatMemoryAdvisor)
                 .advisors(getRagAdvisor())
-                .call().content();
+                .stream().content();
     }
 
 
@@ -56,15 +63,20 @@ public class RagController {
     public String ragTest() {
         log.info("Data insert!");
         List<Document> documents = List.of(
-                new Document("Spring AI rocks!! Spring AI rocks!! Spring AI rocks!! Spring AI rocks!! Spring AI rocks!!", Map.of("meta1", "meta1")),
-                new Document("The World is Big and Salvation Lurks Around the Corner"),
-                new Document("You walk forward facing the past and you turn back toward the future.", Map.of("meta2", "meta2")));
+                new Document("""
+                        产品说明书:产品名称：智能机器人
+                        产品描述：智能机器人是一个智能设备，能够自动完成各种任务。
+                        功能：
+                        1. 自动导航：机器人能够自动导航到指定位置。
+                        2. 自动抓取：机器人能够自动抓取物品。
+                        3. 自动放置：机器人能够自动放置物品。
+                        """));
 
 // Add the documents to Elasticsearch
         elasticsearchVectorStore.add(documents);
 
 // Retrieve documents similar to a query
-        List<Document> results = this.elasticsearchVectorStore.similaritySearch(SearchRequest.builder().query("Spring").topK(5).build());
+        List<Document> results = this.elasticsearchVectorStore.similaritySearch(SearchRequest.builder().query("机器人能够扫地吗？").topK(5).build());
         return results.stream().map(Document::getText).collect(Collectors.joining());
     }
 
@@ -96,7 +108,7 @@ public class RagController {
                 .documentRetriever(VectorStoreDocumentRetriever.builder()
                         .vectorStore(elasticsearchVectorStore)
 //                        .similarityThreshold(0.5)       // 相似度阈值
-//                        .topK(3)                        // 返回文档数量
+                        .topK(3)                        // 返回文档数量
 //                        .filterExpression(filterExpression.build())     // 文档过滤表达式
                         .build())
                 .build();
